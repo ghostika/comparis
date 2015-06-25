@@ -30,6 +30,11 @@ class Car
     /**
      * @ORM\Column(type="string")
      */
+    private $model;
+
+    /**
+     * @ORM\Column(type="string")
+     */
     private $link;
 
     /**
@@ -381,5 +386,19 @@ class Car
         return $this->deleted;
     }
 
+    /**
+     * @param mixed $model
+     */
+    public function setModel($model)
+    {
+        $this->model = $model;
+    }
 
+    /**
+     * @return mixed
+     */
+    public function getModel()
+    {
+        return $this->model;
+    }
 }
