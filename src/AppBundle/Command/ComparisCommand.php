@@ -22,6 +22,8 @@ class ComparisCommand extends ContainerAwareCommand
         $output->writeln('<info>Comparis process</info>');
 
         $service = new ComparisService($output, $this->getContainer()->get('doctrine')->getManager());
+
         $service->start();
+        $service->checkForDelete();
     }
 } 

@@ -201,4 +201,42 @@ class ComparisService
         return $car;
     }
 
+    public function checkForDelete()
+    {
+        $oldCars = $this->entityManager
+            ->getRepository('AppBundle:Car')
+            ->createQueryBuilder('c')
+            ->where('c.deleted = 0')
+            ->andWhere('c.modified < :yesterday')
+            ->setParameter('yesterday', new \DateTime('-1 days'))
+            ->getQuery()
+            ->getResult()
+        ;
+
+        if (!$oldCars) {
+            $this->output->writeln('No cars to delete');
+        }
+
+        /** @var Car $car */
+        foreach ($oldCars as $car) {
+            try {
+                $result = $this->client->get($car->getLink(), ['allow_redirects' => false]);
+            } catch (ClientException $e) {
+                if ($car) {
+                    $car->setDeleted(1);
+                    $this->entityManager->persist($car);
+                    $this->entityManager->flush();
+                }
+                continue;
+            }
+
+            if ($result->getStatusCode() == '302') {
+                    $car->setDeleted(1);
+                    $this->entityManager->persist($car);
+                    $this->entityManager->flush();
+                    $this->output->writeln(sprintf('<info>Car was deleted: %s</info>', $car->getComparisId()));
+            }
+        }
+    }
+
 }
